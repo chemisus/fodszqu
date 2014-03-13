@@ -1,9 +1,22 @@
 #!/bin/bash
 
-curl localhost:8000/message/$1/head | base64 --decode > head_received_encrypted
-curl localhost:8000/message/$1/body | base64 --decode > body_received_encrypted
+ID=${1}
+
+URL=http://fodszqu.com/message/${ID}
+
+HEAD_URL=${URL}/head
+BODY_URL=${URL}/body
+
+HEAD=`curl -s ${HEAD_URL} | base64 --decode | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa`
+BODY=`curl -s ${BODY_URL} | base64 --decode | openssl rsautl -decrypt -inkey ~/.ssh/id_rsa`
 
 mkdir received
 
-openssl rsautl -decrypt -inkey ~/.ssh/id_rsa -in head_received_encrypted -out received/${1}_head
-openssl rsautl -decrypt -inkey ~/.ssh/id_rsa -in body_received_encrypted -out received/${1}_body
+echo "HEAD ${ID}" > received/${ID}
+echo "" >> received/${ID}
+echo ${HEAD} >> received/${ID}
+echo "" >> received/${ID}
+echo "BODY ${ID}" >> received/${ID}
+echo "" >> received/${ID}
+echo ${BODY} >> received/${ID}
+

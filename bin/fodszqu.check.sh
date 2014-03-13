@@ -1,9 +1,12 @@
 #!/bin/bash
 
-curl localhost:8000/messages > check
+URL=http://fodszqu.com/check
 
-while read line
+IDS=`curl -s ${URL}`
+
+echo ${IDS}
+
+while IFS= read -r ID
 do
-    ID=$line
-    ./fodszqu.receive.sh $ID
-done < check
+    ./bin/fodszqu.receive.sh $ID
+done <<< "$IDS"

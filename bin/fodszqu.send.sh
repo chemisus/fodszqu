@@ -1,25 +1,24 @@
 #!/bin/bash
 
+SEND_URL=http://fodszqu.com/message
+KEY=sending/id_rsa.pem.pub
+
 # compose the message
-nano head_send
-nano body_send
+mkdir sending
+
+nano sending/head_send
+nano sending/body_send
 
 # generate the key to encrypt
-ssh-keygen -f ~/.ssh/id_rsa.pub -e -m PKCS8 > id_rsa.pem.pub
+ssh-keygen -f ~/.ssh/id_rsa.pub -e -m PKCS8 > ${KEY}
 
 # encrypt the message
-openssl rsautl -encrypt -pubin -inkey id_rsa.pem.pub -ssl -in head_send -out "head_send_encrypted"
-openssl rsautl -encrypt -pubin -inkey id_rsa.pem.pub -ssl -in body_send -out "body_send_encrypted"
-
-# load the variables
-HEAD=`cat head_send_encrypted | base64`
-BODY=`cat body_send_encrypted | base64`
+HEAD=`openssl rsautl -encrypt -pubin -inkey ${KEY} -ssl -in sending/head_send | base64`
+BODY=`openssl rsautl -encrypt -pubin -inkey ${KEY} -ssl -in sending/body_send | base64`
 
 # send the message
-curl -F "head=$HEAD" -F "body=$BODY" localhost:8000/message
+curl -F "head=$HEAD" -F "body=$BODY" ${SEND_URL}
 
 # delete the local files
-rm head_send
-rm body_send
-rm head_send_encrypted
-rm body_send_encrypted
+rm sending -r
+
