@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FODSZQU=http://localhost:8000
+FODSZQU=http://fodszqu.com
 API=${FODSZQU}/api
 
 MESSAGES_URL=${API}/messages
