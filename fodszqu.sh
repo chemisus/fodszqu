@@ -104,8 +104,8 @@ function main {
         publishKey;
     elif [ "$1" == "key" ]
     then
-        fetchKey $1 $2;
+        fetchKey $2 $3;
     fi
 }
 
-main $1 $2
+main $1 $2 $3
