@@ -4,6 +4,7 @@ FODSZQU=http://fodszqu.com
 API=${FODSZQU}/api
 
 MESSAGES_URL=${API}/messages
+KEYS_URL=${API}/keys
 
 PEM=sending/id_rsa.pem.pub
 KEY=id_rsa.pub
@@ -23,11 +24,12 @@ function sendMail {
     nano ${BODY_P}
 
     # generate the key to encrypt
-    openssl rsa -in ~/.ssh/id_rsa -pubout > ${PEM}
+    # openssl rsa -in ~/.ssh/id_rsa -pubout > ${PEM}
+    TO=`cat ${HEAD_P}`
 
     # encrypt the message
-    cat ${HEAD_P} | openssl rsautl -encrypt -pubin -inkey ${PEM} > ${HEAD_E}
-    cat ${BODY_P} | openssl rsautl -encrypt -pubin -inkey ${PEM} > ${BODY_E}
+    cat ${HEAD_P} | openssl rsautl -encrypt -pubin -inkey keys/${TO} > ${HEAD_E}
+    cat ${BODY_P} | openssl rsautl -encrypt -pubin -inkey keys/${TO} > ${BODY_E}
 
     # send the message
     curl -F head=@${HEAD_E} -F body=@${BODY_E} ${MESSAGES_URL}
@@ -39,15 +41,15 @@ function sendMail {
 function publishKey {
     echo "publishing key";
 
-    cp ~/.ssh/id_rsa.pub ${KEY}
+    openssl rsa -in ~/.ssh/id_rsa -pubout > ${KEY}
 
-    curl -F key=@${KEY} ${API}/keys
+    curl -F key=@${KEY} ${KEYS_URL}
 
     rm ${KEY}
 }
 
 function fetchMail {
-    echo "fetching $1";
+    echo "fetching mail $1";
 
     HEAD_URL=${MESSAGES_URL}/${1}/head
     BODY_URL=${MESSAGES_URL}/${1}/body
@@ -77,6 +79,12 @@ function checkMail {
     done <<< "${IDS}"
 }
 
+function fetchKey {
+    echo "fetching key $1 as $2";
+
+    curl -s ${KEYS_URL}/${1} > keys/${2}
+}
+
 function main {
     if [ "$1" == "send" ]
     then
@@ -90,6 +98,9 @@ function main {
     elif [ "$1" == "publish" ]
     then
         publishKey;
+    elif [ "$1" == "key" ]
+    then
+        fetchKey $1 $2;
     fi
 }
 
