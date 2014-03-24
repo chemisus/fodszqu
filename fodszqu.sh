@@ -32,10 +32,12 @@ function sendMail {
     cat ${BODY_P} | openssl rsautl -encrypt -pubin -inkey keys/${TO} > ${BODY_E}
 
     # send the message
-    curl -F head=@${HEAD_E} -F body=@${BODY_E} ${MESSAGES_URL}
+    ID=`curl -s -F head=@${HEAD_E} -F body=@${BODY_E} ${MESSAGES_URL}`
 
     # delete the local files
     rm -r sending
+
+    echo "Message sent @ ${FODSZQU}/message/${ID}"
 }
 
 function publishKey {
@@ -43,9 +45,11 @@ function publishKey {
 
     openssl rsa -in ~/.ssh/id_rsa -pubout > ${KEY}
 
-    curl -F key=@${KEY} ${KEYS_URL}
+    ID=`curl -s -F key=@${KEY} ${KEYS_URL}`
 
     rm ${KEY}
+
+    echo "Key published @ ${FODSZQU}/keys/${ID}"
 }
 
 function fetchMail {
