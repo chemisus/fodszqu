@@ -37,7 +37,7 @@ function sendMail {
     # delete the local files
     rm -r sending
 
-    echo "Message sent @ ${FODSZQU}/message/${ID}"
+    echo "Message sent @ ${FODSZQU}/messages/${ID}"
 }
 
 function publishKey {
